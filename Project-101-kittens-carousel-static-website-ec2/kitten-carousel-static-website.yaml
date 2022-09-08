@@ -21,5 +21,41 @@ Resources:
           IpProtocol: tcp
           FromPort: 80
           ToPort: 80
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
 
+  WebServerHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-05fa00d4c63e32376
+      InstanceInitiatedShutdownBehavior: "String"
+      InstanceType: t2.micro
+      KeyName: mykey
+      SecurityGroupIds:
+        - !Ref WebServerSecGrup       #Ref referans ediyoruz
+      Tags:
+        - Key : Name
+          Value : Web Server of ${AWS::StackName} Stack
+      UserData: 
+        Fn::Base64:
+          !Sub |
+            #! /bin/bash
+            yum update -y
+            yum install httpd -y
+            FOLDER="https://raw.githubusercontent.com/emregllce/aws-projects/main/Project-101-kittens-carousel-static-website-ec2/static-web"
+            cd /var/www/html
+            wget $FOLDER/index.html
+            wget $FOLDER/cat0.jpg
+            wget $FOLDER/cat1.jpg
+            wget $FOLDER/cat2.jpg
+            wget $FOLDER/cat3.png
+            systemctl start httpd
+            systemctl enable httpd
 Outputs:
+  WebsiteURL:
+    Value: !Sub
+      - http://${PublicAddress}
+      - PublicAddress: !GetAtt WebServerHost.PublicDnsName
+    Description: Kittens Carousel Application URL
