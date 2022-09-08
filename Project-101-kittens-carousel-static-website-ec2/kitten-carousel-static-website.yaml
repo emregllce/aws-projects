@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  This project is done by mentoring kilobyte
+Resources:
+  WebSecGrup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIp: 0.0.0.0/0
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+  WebServerHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-05fa00d4c63e32376
+      InstanceType: t2.micro
+      KeyName: mykey
+      SecurityGroupIds:
+        - !Ref WebSecGrup
+      Tags:
+        - Key: Name
+          Value: !Sub Web Server of ${AWS::StackName} Stack
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #! /bin/bash
+            yum update -y
+            yum install httpd -y
+            FOLDER="https://raw.githubusercontent.com/XXXXXXXXXX/my-projects/main/aws/projects/Project-101-kittens-carousel-static-website-ec2/static-web"
+            cd /var/www/html
+            wget $FOLDER/index.html
+            wget $FOLDER/cat0.jpg
+            wget $FOLDER/cat1.jpg
+            wget $FOLDER/cat2.jpg
+            wget $FOLDER/cat3.png
+            systemctl start httpd
+            systemctl enable httpd
+      Volumes:
+        Volumes
+
+      Tags:
+        - Key:
+          Value:
+  
+Transform:
+  
+Outputs:
